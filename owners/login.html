@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Owners Login | OASISSCHOLARS</title>
+  <link rel="stylesheet" href="../styles.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="brand" href="../index.html"><img class="brand-logo" src="../logo for design.png" alt="logo" /><span>OASISSCHOLARS</span></a>
+      <nav class="site-nav">
+        <a href="../index.html">Home</a>
+        <a href="../opportunities.html">Opportunities</a>
+        <a href="../about.html">About</a>
+        <a href="../contact.html">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container page-content">
+    <section class="page-header">
+      <h1>Owners Portal — Login / Register</h1>
+      <p>Owners can register and post scholarship opportunities. This is a prototype using local storage. For production, connect to a secure backend.</p>
+    </section>
+
+    <section class="about-section">
+      <div style="max-width:520px; margin:0 auto;">
+        <form id="owner-form" class="contact-form">
+          <label for="owner-name">Name</label>
+          <input id="owner-name" name="name" type="text" placeholder="Your name" required />
+
+          <label for="owner-email">Email</label>
+          <input id="owner-email" name="email" type="email" placeholder="you@org.org" required />
+
+          <label for="owner-password">Password</label>
+          <input id="owner-password" name="password" type="password" placeholder="Choose a password" required />
+
+          <div style="display:flex; gap:0.75rem;">
+            <button id="register-btn" type="button" class="button button-primary">Register</button>
+            <button id="login-btn" type="button" class="button button-secondary">Login</button>
+          </div>
+        </form>
+        <p id="owner-message" style="color:var(--deep-forest); font-weight:600; margin-top:1rem"></p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <p>© 2026 OASISSCHOLARS</p>
+    </div>
+  </footer>
+
+  <script src="owners.js"></script>
+</body>
+</html>
