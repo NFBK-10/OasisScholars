@@ -7,7 +7,9 @@ const bucketName = 'opportunity-files';
 const localUsersKey = 'oasisscholars-local-users';
 const localSessionKey = 'oasisscholars-local-session';
 const localOpportunitiesKey = 'oasisscholars-local-opportunities';
-const demoOwnerId = 'demo-owner';
+const legacyOpportunitiesKey = 'oasis_ops_v2';
+const legacyOwnersKey = 'oasis_owners_v1';
+const legacyActiveOwnerKey = 'oasis_owner_active';
 
 const supabaseReady = hasSupabaseConfig();
 let supabase = null;
@@ -97,6 +99,15 @@ function writeLocalJson(key, value){
   localStorage.setItem(key, JSON.stringify(value));
 }
 
+function readSessionJson(key, fallback){
+  try{
+    const raw = sessionStorage.getItem(key);
+    return raw ? JSON.parse(raw) : fallback;
+  }catch(error){
+    return fallback;
+  }
+}
+
 function createLocalId(){
   if(window.crypto && window.crypto.randomUUID) return window.crypto.randomUUID();
   return 'local-' + Date.now() + '-' + Math.random().toString(16).slice(2);
@@ -111,6 +122,15 @@ function localUserFromRecord(record){
   };
 }
 
+function localUserFromLegacyOwner(record){
+  if(!record) return null;
+  return {
+    id: record.email,
+    email: record.email,
+    user_metadata: { full_name: record.name || record.email }
+  };
+}
+
 async function hashLocalPassword(password){
   if(!window.crypto || !window.crypto.subtle) return password;
   const encoded = new TextEncoder().encode(password);
@@ -122,9 +142,16 @@ async function hashLocalPassword(password){
 
 function getLocalSessionUser(){
   const session = readLocalJson(localSessionKey, null);
-  if(!session) return null;
   const users = readLocalJson(localUsersKey, []);
-  return localUserFromRecord(users.find(user => user.id === session.userId));
+  if(session){
+    const user = localUserFromRecord(users.find(item => item.id === session.userId));
+    if(user) return user;
+  }
+
+  const legacyOwner = readSessionJson(legacyActiveOwnerKey, null);
+  if(legacyOwner) return localUserFromLegacyOwner(legacyOwner);
+
+  return null;
 }
 
 async function localSignUp(name, email, password){
@@ -142,12 +169,24 @@ async function localSignIn(email, password){
   const users = readLocalJson(localUsersKey, []);
   const passwordHash = await hashLocalPassword(password);
   const user = users.find(item => item.email.toLowerCase() === email.toLowerCase() && item.passwordHash === passwordHash);
-  if(!user) throw new Error('Invalid local demo login details.');
-  writeLocalJson(localSessionKey, { userId: user.id });
+  if(user){
+    writeLocalJson(localSessionKey, { userId: user.id });
+    return;
+  }
+
+  const legacyOwners = readLocalJson(legacyOwnersKey, []);
+  const legacyOwner = legacyOwners.find(item => item.email.toLowerCase() === email.toLowerCase() && item.passHash === passwordHash);
+  if(legacyOwner){
+    sessionStorage.setItem(legacyActiveOwnerKey, JSON.stringify({ email: legacyOwner.email, name: legacyOwner.name }));
+    return;
+  }
+
+  throw new Error('Invalid login details.');
 }
 
 async function localSignOut(){
   localStorage.removeItem(localSessionKey);
+  sessionStorage.removeItem(legacyActiveOwnerKey);
 }
 
 function localFileToDataUrl(file){
@@ -215,26 +254,38 @@ function opportunityFromRow(row){
   };
 }
 
-function demoOpportunities(){
-  return [{
-    id: 'demo-france-eiffel-2026',
-    title: 'France Eiffel Excellence Scholarship 2026 (Fully Funded)',
-    provider: 'France Universities',
-    summary: 'France Eiffel Excellence Scholarship 2026 is a fully funded scholarship for students seeking Masters and PhD programs in France.',
-    deadline: '2026-01-10',
-    amount: 'Fully Funded',
-    apply_url: '',
-    full_info: 'The France Eiffel Excellence Scholarship supports outstanding international students who want to pursue graduate study in France. Benefits may include tuition support, monthly allowance, travel support, and other study-related assistance.',
-    image_url: '',
+function rowFromLegacyOpportunity(item){
+  if(!item) return null;
+  return {
+    id: String(item.id),
+    title: item.title || '',
+    provider: item.provider || 'OASISSCHOLARS',
+    summary: item.summary || item.description || '',
+    deadline: item.deadline || '',
+    amount: item.amount || '',
+    apply_url: item.applyUrl || '',
+    full_info: item.fullInfo || item.description || item.summary || '',
+    image_url: item.image && item.image.data ? item.image.data : '',
     image_path: '',
-    document_url: '',
+    document_url: item.document && item.document.data ? item.document.data : '',
     document_path: '',
-    document_name: '',
-    owner_uid: demoOwnerId,
-    owner_email: '',
-    owner_name: 'OASISSCHOLARS Demo',
-    created_at: new Date().toISOString()
-  }];
+    document_name: item.document && item.document.name ? item.document.name : '',
+    owner_uid: item.owner || '',
+    owner_email: item.owner || '',
+    owner_name: item.owner || '',
+    created_at: item.createdAt || new Date(Number(item.id) || Date.now()).toISOString()
+  };
+}
+
+function getLocalOpportunityRows(){
+  const currentRows = readLocalJson(localOpportunitiesKey, []);
+  const legacyRows = readLocalJson(legacyOpportunitiesKey, [])
+    .map(rowFromLegacyOpportunity)
+    .filter(Boolean);
+  const rowsById = new Map();
+  legacyRows.forEach(row => rowsById.set(String(row.id), row));
+  currentRows.forEach(row => rowsById.set(String(row.id), row));
+  return Array.from(rowsById.values());
 }
 
 function buildOpportunityCard(opportunity, ownerView, onRemoved){
@@ -306,6 +357,9 @@ function buildOpportunityCard(opportunity, ownerView, onRemoved){
         const posts = readLocalJson(localOpportunitiesKey, [])
           .filter(item => !(item.id === opportunity.id && item.owner_uid === opportunity.ownerUid));
         writeLocalJson(localOpportunitiesKey, posts);
+        const legacyPosts = readLocalJson(legacyOpportunitiesKey, [])
+          .filter(item => String(item.id) !== String(opportunity.id));
+        writeLocalJson(legacyOpportunitiesKey, legacyPosts);
       }
       if(onRemoved) onRemoved();
     });
@@ -323,9 +377,7 @@ function buildOpportunityCard(opportunity, ownerView, onRemoved){
 
 async function fetchOpportunities(){
   if(!supabaseReady){
-    const localPosts = readLocalJson(localOpportunitiesKey, []);
-    const rows = localPosts.length ? localPosts : demoOpportunities();
-    return rows
+    return getLocalOpportunityRows()
       .map(opportunityFromRow)
       .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
   }
@@ -344,7 +396,6 @@ async function renderPublicList(){
   try{
     const opportunities = await fetchOpportunities();
     clearElement(listEl);
-    if(!supabaseReady) supabaseSetupCard(listEl);
     if(!opportunities.length){
       addText(listEl, 'p', 'No current opportunities yet.');
       return;
@@ -379,14 +430,12 @@ async function renderOpportunityDetail(){
       if(response.error) throw response.error;
       data = response.data;
     } else {
-      const localPosts = readLocalJson(localOpportunitiesKey, []);
-      data = localPosts.find(item => item.id === id) || demoOpportunities().find(item => item.id === id);
+      data = getLocalOpportunityRows().find(item => String(item.id) === String(id));
       if(!data) throw new Error('This local demo post was not found in this browser.');
     }
 
     const opportunity = opportunityFromRow(data);
     clearElement(detailEl);
-    if(!supabaseReady) supabaseSetupCard(detailEl);
 
     if(opportunity.imageUrl){
       const image = document.createElement('img');
@@ -446,7 +495,7 @@ function setupLoginPage(){
   if(!document.getElementById('owner-form')) return;
   const msg = document.getElementById('owner-message');
   if(!supabaseReady){
-    setMessage(msg, 'Local demo mode is active. You can register and test posting in this browser while Supabase is being prepared.');
+    setMessage(msg, '');
   }
 
   document.getElementById('register-btn').addEventListener('click', async () => {
@@ -495,8 +544,7 @@ async function setupDashboard(){
   const postsEl = document.getElementById('owner-posts');
 
   if(!supabaseReady){
-    setMessage(msg, 'Local demo mode is active. Posts are saved only in this browser until Supabase is connected.');
-    supabaseSetupCard(postsEl);
+    setMessage(msg, '');
   }
 
   let user;
@@ -582,13 +630,12 @@ async function setupDashboard(){
         if(response.error) throw response.error;
         data = response.data;
       } else {
-        data = readLocalJson(localOpportunitiesKey, [])
-          .filter(item => item.owner_uid === user.id)
+        data = getLocalOpportunityRows()
+          .filter(item => item.owner_uid === user.id || item.owner_email === user.email)
           .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
       }
 
       clearElement(postsEl);
-      if(!supabaseReady) supabaseSetupCard(postsEl);
       if(!data.length){
         addText(postsEl, 'p', 'No posts yet.');
         return;
