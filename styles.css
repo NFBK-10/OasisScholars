@@ -209,8 +209,8 @@ p {
 
 .cards-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 1.5rem;
+  grid-template-columns: 1fr;
+  gap: 1.85rem;
 }
 
 .team-grid {
@@ -421,38 +421,173 @@ p {
   gap: 1rem;
 }
 
+/* Compact version of the reusable listing card inside the owner dashboard. */
+.owner-posts .opportunity-card-top {
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  padding: 1rem;
+}
+
+.owner-posts .opportunity-card-body h2 {
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
+}
+
+.owner-posts .listing-meta-list {
+  font-size: 0.92rem;
+}
+
+.owner-posts .listing-actions {
+  justify-content: flex-start;
+  min-height: auto;
+  padding: 1rem;
+}
+
+.owner-posts .listing-button {
+  min-width: 0;
+}
+
+.owner-posts .listing-description {
+  padding: 1rem;
+  font-size: 0.95rem;
+  line-height: 1.65;
+}
+
+/* Reusable scholarship listing card used on the Opportunities page. */
 .opportunity-card {
   overflow: hidden;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 1rem;
-  box-shadow: var(--shadow);
+  background: #ffffff;
+  border: 1px solid #E5E7EB;
+  border-radius: 12px;
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
+}
+
+.opportunity-card-top {
+  display: grid;
+  grid-template-columns: minmax(240px, 400px) minmax(0, 1fr);
+  gap: 3rem;
+  align-items: start;
+  padding: 1.85rem 2rem 1.25rem;
+}
+
+.opportunity-card-media {
+  width: 100%;
 }
 
 .opportunity-image {
   width: 100%;
-  aspect-ratio: 16 / 9;
+  aspect-ratio: 16 / 10;
   object-fit: cover;
-  background: var(--bg-sidebar-mint);
+  background: #eef2f7;
+  border-radius: 8px;
 }
 
 .opportunity-image-placeholder {
-  display: grid;
-  place-items: center;
-  min-height: 180px;
-  color: var(--deep-forest);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.4rem;
+  min-height: 230px;
+  padding: 1.25rem;
+  color: #ffffff;
   font-weight: 800;
-  letter-spacing: 0.08em;
+  letter-spacing: 0;
+  background: linear-gradient(135deg, #174236 0%, #1D4ED8 100%);
+}
+
+.opportunity-image-placeholder span {
+  font-size: 1rem;
+  opacity: 0.9;
+}
+
+.opportunity-image-placeholder strong {
+  max-width: 22rem;
+  font-size: 1.35rem;
+  line-height: 1.12;
 }
 
 .opportunity-card-body {
-  padding: 1.35rem;
+  min-width: 0;
 }
 
 .opportunity-card-body h2 {
-  margin: 0 0 0.75rem;
+  margin: 0 0 1.55rem;
+  color: #111827;
+  font-size: clamp(1.25rem, 2vw, 1.5rem);
+  font-weight: 700;
+  line-height: 1.08;
+}
+
+.listing-meta-list {
+  display: grid;
+  gap: 0.65rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  color: #4B5563;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.listing-meta-item {
+  display: grid;
+  grid-template-columns: 1.5rem minmax(0, 1fr);
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.listing-meta-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  color: #374151;
+}
+
+.listing-meta-icon svg {
+  width: 1.25rem;
+  height: 1.25rem;
+  fill: currentColor;
+}
+
+.listing-actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: 5.2rem;
+  padding: 1.2rem 2.75rem;
+  border-top: 1px solid #E5E7EB;
+}
+
+.listing-button {
+  min-width: 205px;
+  border-radius: 7px;
+  background: #1D4ED8;
+  color: #ffffff;
+  font-size: 0.95rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.listing-button:hover {
+  background: #1E40AF;
+}
+
+.listing-button span {
   font-size: 1.35rem;
-  line-height: 1.2;
+  line-height: 1;
+}
+
+.listing-description {
+  margin: 0;
+  padding: 1.8rem 2rem 2rem;
+  color: #4B5563;
+  font-size: 1.03rem;
+  line-height: 1.8;
+  border-top: 1px solid #E5E7EB;
 }
 
 .small-eyebrow {
@@ -497,6 +632,18 @@ p {
   margin-top: 0;
 }
 
+.setup-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  box-shadow: var(--shadow);
+}
+
+.setup-card h2 {
+  margin-top: 0;
+}
+
 .site-footer {
   padding: 1.5rem 0;
   background: #ffffff;
@@ -521,6 +668,16 @@ p {
 
   .owner-workspace {
     grid-template-columns: 1fr;
+  }
+
+  .opportunity-card-top {
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
+
+  .listing-actions {
+    justify-content: flex-start;
+    padding: 1.2rem 2rem;
   }
 }
 
@@ -549,5 +706,25 @@ p {
 
   .form-grid {
     grid-template-columns: 1fr;
+  }
+
+  .opportunity-card-top {
+    padding: 1rem;
+  }
+
+  .listing-actions {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 1rem;
+  }
+
+  .listing-button {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .listing-description {
+    padding: 1rem;
+    font-size: 1rem;
   }
 }
