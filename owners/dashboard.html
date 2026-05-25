@@ -3,6 +3,8 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://esm.sh; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://*.supabase.co; font-src 'self'; connect-src 'self' https://esm.sh https://*.supabase.co https://*.supabase.in; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests" />
+  <meta name="referrer" content="no-referrer" />
   <title>Owners Dashboard | OASISSCHOLARS</title>
   <link rel="stylesheet" href="../styles.css" />
 </head>
@@ -31,13 +33,13 @@
         <h2>Create Opportunity</h2>
         <form id="post-form" class="contact-form">
           <label for="title">Top headline</label>
-          <input id="title" name="title" type="text" placeholder="Example: Mastercard Foundation Scholars Program 2026" required />
+          <input id="title" name="title" type="text" placeholder="Example: Mastercard Foundation Scholars Program 2026" maxlength="160" required />
 
           <label for="provider">Scholarship provider</label>
-          <input id="provider" name="provider" type="text" placeholder="Organization, university, or sponsor" required />
+          <input id="provider" name="provider" type="text" placeholder="Organization, university, or sponsor" maxlength="120" required />
 
           <label for="summary">Short advertising text</label>
-          <textarea id="summary" name="summary" rows="3" placeholder="A short message visitors see before clicking See more information." required></textarea>
+          <textarea id="summary" name="summary" rows="3" maxlength="500" placeholder="A short message visitors see before clicking See more information." required></textarea>
 
           <div class="form-grid">
             <div>
@@ -46,23 +48,23 @@
             </div>
             <div>
               <label for="amount">Award or benefit</label>
-              <input id="amount" name="amount" type="text" placeholder="Full scholarship, tuition, stipend..." />
+              <input id="amount" name="amount" type="text" maxlength="120" placeholder="Full scholarship, tuition, stipend..." />
             </div>
           </div>
 
           <label for="apply-url">Application website link</label>
-          <input id="apply-url" name="apply-url" type="url" placeholder="https://example.org/apply" />
+          <input id="apply-url" name="apply-url" type="url" maxlength="500" placeholder="https://example.org/apply" />
 
           <label for="image">Scholarship advertising image</label>
-          <input id="image" name="image" type="file" accept="image/*" />
+          <input id="image" name="image" type="file" accept="image/jpeg,image/png,image/webp" />
           <div class="upload-preview" id="image-preview">Image preview will appear here.</div>
 
           <label for="document">Scholarship document</label>
-          <input id="document" name="document" type="file" accept=".pdf,.doc,.docx,.txt,image/*" />
-          <p class="form-hint" id="document-preview">Attach a PDF, Word document, text file, or image with scholarship requirements.</p>
+          <input id="document" name="document" type="file" accept=".pdf,.txt,image/jpeg,image/png,image/webp" />
+          <p class="form-hint" id="document-preview">Attach a PDF, text file, or safe image with scholarship requirements.</p>
 
           <label for="full-info">Full opportunity information</label>
-          <textarea id="full-info" name="full-info" rows="10" placeholder="Paste the complete scholarship description, eligibility, required documents, benefits, and application steps." required></textarea>
+          <textarea id="full-info" name="full-info" rows="10" maxlength="5000" placeholder="Paste the complete scholarship description, eligibility, required documents, benefits, and application steps." required></textarea>
 
           <div class="form-actions">
             <button id="post-btn" class="button button-primary" type="button">Post Opportunity</button>

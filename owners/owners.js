@@ -1,9 +1,21 @@
 // Supabase-powered owner auth and scholarship posting, with a local demo fallback.
 import { supabaseConfig, hasSupabaseConfig } from '../supabase-config.js';
 
-const maxFileBytes = 8 * 1024 * 1024;
+const maxFileBytes = 5 * 1024 * 1024;
 const tableName = 'opportunities';
 const bucketName = 'opportunity-files';
+const allowedImageTypes = new Set(['image/jpeg', 'image/png', 'image/webp']);
+const allowedDocumentTypes = new Set(['application/pdf', 'text/plain', 'image/jpeg', 'image/png', 'image/webp']);
+const allowedDocumentExtensions = new Set(['.pdf', '.txt', '.jpg', '.jpeg', '.png', '.webp']);
+const maxTextLengths = {
+  name: 80,
+  title: 160,
+  provider: 120,
+  summary: 500,
+  amount: 120,
+  applyUrl: 500,
+  fullInfo: 5000
+};
 const localUsersKey = 'oasisscholars-local-users';
 const localSessionKey = 'oasisscholars-local-session';
 const localOpportunitiesKey = 'oasisscholars-local-opportunities';
@@ -199,14 +211,50 @@ function localFileToDataUrl(file){
 }
 
 function validateFile(file){
-  if(file && file.size > maxFileBytes){
-    throw new Error(file.name + ' is too large. Please use a file under 8 MB.');
+  if(!file) return;
+  if(file.size > maxFileBytes){
+    throw new Error(file.name + ' is too large. Please use a file under 5 MB.');
+  }
+  const extension = file.name.slice(file.name.lastIndexOf('.')).toLowerCase();
+  const imageOnly = file.type.startsWith('image/');
+  if(imageOnly && !allowedImageTypes.has(file.type)){
+    throw new Error(file.name + ' must be a JPG, PNG, or WebP image.');
+  }
+  if(!imageOnly && (!allowedDocumentTypes.has(file.type) || !allowedDocumentExtensions.has(extension))){
+    throw new Error(file.name + ' must be a PDF or plain text document.');
   }
 }
 
-async function uploadFile(file, folder, userId){
+function safeText(value, field){
+  const text = String(value || '').trim();
+  const max = maxTextLengths[field];
+  if(max && text.length > max){
+    throw new Error(field + ' is too long. Please shorten it.');
+  }
+  return text;
+}
+
+function safeUrl(value){
+  const text = safeText(value, 'applyUrl');
+  if(!text) return '';
+  let url;
+  try{
+    url = new URL(text);
+  }catch(error){
+    throw new Error('Application website link must be a valid URL.');
+  }
+  if(url.protocol !== 'https:' && url.protocol !== 'http:'){
+    throw new Error('Application website link must start with https:// or http://.');
+  }
+  return url.href;
+}
+
+async function uploadFile(file, folder, userId, expectedKind){
   if(!file) return null;
   validateFile(file);
+  if(expectedKind === 'image' && !allowedImageTypes.has(file.type)){
+    throw new Error('Scholarship image must be a JPG, PNG, or WebP file.');
+  }
   if(!supabaseReady){
     return {
       name: file.name,
@@ -215,7 +263,7 @@ async function uploadFile(file, folder, userId){
       url: await localFileToDataUrl(file)
     };
   }
-  const cleanName = file.name.replace(/[^a-zA-Z0-9._-]/g, '-');
+  const cleanName = file.name.replace(/[^a-zA-Z0-9._-]/g, '-').slice(0, 120);
   const path = `${folder}/${userId}/${Date.now()}-${cleanName}`;
   const { error } = await supabase.storage.from(bucketName).upload(path, file, {
     cacheControl: '3600',
@@ -500,10 +548,11 @@ function setupLoginPage(){
 
   document.getElementById('register-btn').addEventListener('click', async () => {
     try{
-      const name = document.getElementById('owner-name').value.trim();
-      const email = document.getElementById('owner-email').value.trim();
+      const name = safeText(document.getElementById('owner-name').value, 'name');
+      const email = document.getElementById('owner-email').value.trim().toLowerCase();
       const password = document.getElementById('owner-password').value;
       if(!name || !email || !password) throw new Error('All fields required');
+      if(password.length < 8) throw new Error('Password must be at least 8 characters.');
 
       if(supabaseReady){
         const { error } = await supabase.auth.signUp({
@@ -523,7 +572,7 @@ function setupLoginPage(){
 
   document.getElementById('login-btn').addEventListener('click', async () => {
     try{
-      const email = document.getElementById('owner-email').value.trim();
+      const email = document.getElementById('owner-email').value.trim().toLowerCase();
       const password = document.getElementById('owner-password').value;
       if(supabaseReady){
         const { error } = await supabase.auth.signInWithPassword({ email, password });
@@ -605,7 +654,7 @@ async function setupDashboard(){
     const file = documentInput.files[0];
     try{
       validateFile(file);
-      documentPreview.textContent = file ? 'Selected document: ' + file.name : 'Attach a PDF, Word document, text file, or image with scholarship requirements.';
+      documentPreview.textContent = file ? 'Selected document: ' + file.name : 'Attach a PDF, text file, or safe image with scholarship requirements.';
     }catch(error){
       setMessage(msg, error.message);
     }
@@ -614,7 +663,7 @@ async function setupDashboard(){
   document.getElementById('clear-btn').addEventListener('click', () => {
     form.reset();
     imagePreview.textContent = 'Image preview will appear here.';
-    documentPreview.textContent = 'Attach a PDF, Word document, text file, or image with scholarship requirements.';
+    documentPreview.textContent = 'Attach a PDF, text file, or safe image with scholarship requirements.';
     setMessage(msg, '');
   });
 
@@ -656,18 +705,18 @@ async function setupDashboard(){
       if(!form.reportValidity()) return;
       setMessage(msg, 'Uploading and saving opportunity...');
 
-      const image = await uploadFile(imageInput.files[0], 'opportunity-images', user.id);
-      const scholarshipDocument = await uploadFile(documentInput.files[0], 'opportunity-documents', user.id);
+      const image = await uploadFile(imageInput.files[0], 'opportunity-images', user.id, 'image');
+      const scholarshipDocument = await uploadFile(documentInput.files[0], 'opportunity-documents', user.id, 'document');
 
       const row = {
         id: createLocalId(),
-        title: document.getElementById('title').value.trim(),
-        provider: document.getElementById('provider').value.trim(),
-        summary: document.getElementById('summary').value.trim(),
+        title: safeText(document.getElementById('title').value, 'title'),
+        provider: safeText(document.getElementById('provider').value, 'provider'),
+        summary: safeText(document.getElementById('summary').value, 'summary'),
         deadline: document.getElementById('deadline').value,
-        amount: document.getElementById('amount').value.trim(),
-        apply_url: document.getElementById('apply-url').value.trim(),
-        full_info: document.getElementById('full-info').value.trim(),
+        amount: safeText(document.getElementById('amount').value, 'amount'),
+        apply_url: safeUrl(document.getElementById('apply-url').value),
+        full_info: safeText(document.getElementById('full-info').value, 'fullInfo'),
         image_url: image ? image.url : '',
         image_path: image ? image.path : '',
         document_url: scholarshipDocument ? scholarshipDocument.url : '',
@@ -690,7 +739,7 @@ async function setupDashboard(){
 
       form.reset();
       imagePreview.textContent = 'Image preview will appear here.';
-      documentPreview.textContent = 'Attach a PDF, Word document, text file, or image with scholarship requirements.';
+      documentPreview.textContent = 'Attach a PDF, text file, or safe image with scholarship requirements.';
       setMessage(msg, 'Posted successfully. Everyone can now see it on Opportunities.');
       await renderOwnerPosts();
     }catch(error){

@@ -3,6 +3,8 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://esm.sh; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://*.supabase.co; font-src 'self'; connect-src 'self' https://esm.sh https://*.supabase.co https://*.supabase.in; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests" />
+  <meta name="referrer" content="no-referrer" />
   <title>Owners Login | OASISSCHOLARS</title>
   <link rel="stylesheet" href="../styles.css" />
 </head>
@@ -29,13 +31,13 @@
       <div style="max-width:520px; margin:0 auto;">
         <form id="owner-form" class="contact-form">
           <label for="owner-name">Name</label>
-          <input id="owner-name" name="name" type="text" placeholder="Your name" required />
+          <input id="owner-name" name="name" type="text" placeholder="Your name" maxlength="80" autocomplete="name" required />
 
           <label for="owner-email">Email</label>
-          <input id="owner-email" name="email" type="email" placeholder="you@org.org" required />
+          <input id="owner-email" name="email" type="email" placeholder="you@org.org" maxlength="254" autocomplete="email" required />
 
           <label for="owner-password">Password</label>
-          <input id="owner-password" name="password" type="password" placeholder="Choose a password" required />
+          <input id="owner-password" name="password" type="password" placeholder="Choose a password" minlength="8" autocomplete="current-password" required />
 
           <div style="display:flex; gap:0.75rem;">
             <button id="register-btn" type="button" class="button button-primary">Register</button>

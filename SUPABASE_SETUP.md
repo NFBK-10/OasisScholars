@@ -18,6 +18,8 @@ In Authentication > Sign In / Providers, enable Email.
 
 If you want owners to log in immediately after registering, keep email confirmation disabled while testing. If you enable email confirmation, owners must confirm their email before posting.
 
+For production, create only the owner accounts you trust, then turn `Allow new users to sign up` off. This prevents strangers from registering and posting scholarships.
+
 ## 3. Create the table
 
 Open SQL Editor and run:
@@ -86,6 +88,11 @@ In Storage, create a public bucket named:
 opportunity-files
 ```
 
+For stronger protection, set these upload limits in the bucket settings if Supabase shows the options:
+
+- Maximum file size: `5 MB`
+- Allowed MIME types: `image/jpeg`, `image/png`, `image/webp`, `application/pdf`, `text/plain`
+
 ## 6. Add storage policies
 
 Run this in SQL Editor:
@@ -125,6 +132,17 @@ using (
 ```
 
 The app uploads files to paths like `opportunity-images/user-id/file-name`, so the second folder is the owner user id.
+
+## Security checklist
+
+- Keep Row Level Security enabled on `public.opportunities`.
+- Never paste the `service_role` key into website files or GitHub.
+- Use only the publishable/anon key in `supabase-config.js`.
+- In Authentication, keep Email signups enabled only if you are ready to accept new owners.
+- After creating trusted owner accounts, disable new signups in Authentication > Sign In / Providers.
+- Use strong passwords for owner accounts and remove unknown users from Authentication > Users.
+- Review uploaded files regularly in Storage and delete anything suspicious.
+- Keep GitHub Pages HTTPS enabled.
 
 ## 7. Publish
 

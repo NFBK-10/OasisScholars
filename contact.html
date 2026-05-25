@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests" />
   <meta name="referrer" content="no-referrer" />
   <title>OASISSCHOLARS | Contact</title>
   <link rel="stylesheet" href="styles.css" />
@@ -42,13 +42,13 @@
 
       <form class="contact-form">
         <label for="name">Name</label>
-        <input id="name" name="name" type="text" placeholder="Your name" required />
+        <input id="name" name="name" type="text" placeholder="Your name" maxlength="80" autocomplete="name" required />
 
         <label for="email">Email</label>
-        <input id="email" name="email" type="email" placeholder="Your email" required />
+        <input id="email" name="email" type="email" placeholder="Your email" maxlength="254" autocomplete="email" required />
 
         <label for="message">Message</label>
-        <textarea id="message" name="message" rows="5" placeholder="Tell us how we can help" required></textarea>
+        <textarea id="message" name="message" rows="5" maxlength="1000" placeholder="Tell us how we can help" required></textarea>
 
         <button type="submit" class="button button-primary">Send Message</button>
       </form>
