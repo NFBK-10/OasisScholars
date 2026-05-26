@@ -595,6 +595,41 @@ p {
   line-height: 1;
 }
 
+.share-actions {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.share-label {
+  color: #4B5563;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.share-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.25rem;
+  padding: 0.45rem 0.7rem;
+  border: 1px solid #CBD5E1;
+  border-radius: 7px;
+  background: #ffffff;
+  color: #1E3F32;
+  font: inherit;
+  font-size: 0.86rem;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.share-button:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
 .listing-description {
   margin: 0;
   padding: 1.8rem 2rem 2rem;
@@ -735,6 +770,10 @@ p {
   .listing-button {
     width: 100%;
     min-width: 0;
+  }
+
+  .share-actions {
+    justify-content: flex-start;
   }
 
   .listing-description {

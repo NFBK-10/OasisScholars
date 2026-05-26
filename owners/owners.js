@@ -60,6 +60,83 @@ function addMeta(parent, label, value){
   parent.appendChild(item);
 }
 
+function siteBaseUrl(){
+  return window.location.origin + window.location.pathname.replace(/(?:owners\/)?[^/]*$/, '');
+}
+
+function opportunityUrl(opportunity){
+  return new URL('opportunity.html?id=' + encodeURIComponent(opportunity.id), siteBaseUrl()).href;
+}
+
+function shareText(opportunity){
+  const parts = [
+    'Posted by OASISSCHOLARS',
+    opportunity.title,
+    opportunity.summary,
+    'Apply or read more: ' + opportunityUrl(opportunity),
+    'Website: ' + new URL('index.html', siteBaseUrl()).href
+  ];
+  return parts.filter(Boolean).join('\n\n');
+}
+
+async function copyShareText(opportunity, button){
+  const text = shareText(opportunity);
+  try{
+    if(navigator.share){
+      await navigator.share({
+        title: opportunity.title,
+        text: 'Posted by OASISSCHOLARS: ' + opportunity.title,
+        url: opportunityUrl(opportunity)
+      });
+    } else if(navigator.clipboard){
+      await navigator.clipboard.writeText(text);
+      if(button) button.textContent = 'Copied';
+    } else {
+      window.prompt('Copy this post for Instagram or other apps:', text);
+    }
+  }catch(error){
+    if(error.name !== 'AbortError') window.prompt('Copy this post for Instagram or other apps:', text);
+  }
+}
+
+function buildShareActions(opportunity){
+  const share = document.createElement('div');
+  share.className = 'share-actions';
+
+  const label = document.createElement('span');
+  label.className = 'share-label';
+  label.textContent = 'Share';
+  share.appendChild(label);
+
+  const encodedText = encodeURIComponent(shareText(opportunity));
+  const encodedUrl = encodeURIComponent(opportunityUrl(opportunity));
+
+  const whatsapp = document.createElement('a');
+  whatsapp.className = 'share-button';
+  whatsapp.href = 'https://wa.me/?text=' + encodedText;
+  whatsapp.target = '_blank';
+  whatsapp.rel = 'noopener noreferrer';
+  whatsapp.textContent = 'WhatsApp';
+  share.appendChild(whatsapp);
+
+  const x = document.createElement('a');
+  x.className = 'share-button';
+  x.href = 'https://twitter.com/intent/tweet?text=' + encodeURIComponent('Posted by OASISSCHOLARS: ' + opportunity.title) + '&url=' + encodedUrl;
+  x.target = '_blank';
+  x.rel = 'noopener noreferrer';
+  x.textContent = 'X';
+  share.appendChild(x);
+
+  const copy = document.createElement('button');
+  copy.className = 'share-button';
+  copy.type = 'button';
+  copy.textContent = 'Copy for Instagram';
+  copy.addEventListener('click', () => copyShareText(opportunity, copy));
+  share.appendChild(copy);
+
+  return share;
+}
+
 function iconSvg(pathData){
   const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
   svg.setAttribute('viewBox', '0 0 24 24');
@@ -387,6 +464,7 @@ function buildOpportunityCard(opportunity, ownerView, onRemoved){
   arrow.textContent = '\u2192';
   link.appendChild(arrow);
   actions.appendChild(link);
+  actions.appendChild(buildShareActions(opportunity));
 
   if(ownerView){
     const remove = document.createElement('button');
@@ -532,6 +610,7 @@ async function renderOpportunityDetail(){
       docLink.textContent = 'Open scholarship document';
       actions.appendChild(docLink);
     }
+    actions.appendChild(buildShareActions(opportunity));
     detailEl.appendChild(actions);
   }catch(error){
     clearElement(detailEl);
