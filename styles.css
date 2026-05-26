@@ -287,7 +287,8 @@ p {
 
 .info-section,
 .about-section,
-.contact-section {
+.contact-section,
+.legal-section {
   margin-top: 2rem;
   background: var(--surface);
   border: 1px solid var(--border);
@@ -299,6 +300,19 @@ p {
 .about-section ul {
   margin: 0;
   padding-left: 1.25rem;
+}
+
+.legal-section {
+  max-width: 880px;
+}
+
+.legal-section h2 {
+  margin: 2rem 0 0.75rem;
+  font-size: 1.35rem;
+}
+
+.legal-section p {
+  color: var(--muted);
 }
 
 .who-grid {
