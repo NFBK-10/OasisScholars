@@ -644,7 +644,11 @@ p {
   position: relative;
   display: flex;
   flex-direction: column;
-  min-height: 430px;
+  width: 100%;
+  max-width: 450px;
+  height: 650px;
+  margin: 0 auto;
+  padding: 28px;
   overflow: hidden;
   background:
     radial-gradient(circle at 84% 13%, rgba(42, 93, 74, 0.14) 0 2px, transparent 2px 100%),
@@ -652,7 +656,7 @@ p {
     #ffffff;
   background-size: auto, 18px 18px, auto;
   border: 1px solid #E4E7EA;
-  border-radius: 16px;
+  border-radius: 24px;
   box-shadow: 0 20px 44px rgba(15, 23, 42, 0.1);
 }
 
@@ -661,7 +665,7 @@ p {
   align-items: center;
   gap: 0.45rem;
   min-height: 2.5rem;
-  padding: 1rem 1rem 0;
+  padding: 0;
   color: var(--primary);
   font-size: 0.58rem;
   font-weight: 900;
@@ -681,13 +685,10 @@ p {
 }
 
 .opportunity-card-body {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(130px, 45%);
-  gap: 0.75rem;
-  align-items: center;
+  display: block;
   flex: 1;
   min-width: 0;
-  padding: 0.4rem 1rem 0.75rem;
+  padding: 2.25rem 0 0;
 }
 
 .poster-copy {
@@ -701,9 +702,10 @@ p {
 .opportunity-card-body h2 {
   margin: 0 0 0.65rem;
   color: var(--primary);
-  font-size: clamp(1.45rem, 2.7vw, 2.35rem);
+  width: 60%;
+  font-size: clamp(32px, 4vw, 58px);
   font-weight: 950;
-  line-height: 0.95;
+  line-height: 1;
   text-transform: uppercase;
   overflow-wrap: anywhere;
 }
@@ -719,12 +721,13 @@ p {
 
 .poster-copy p {
   display: -webkit-box;
-  max-width: 15.5rem;
+  width: 55%;
+  max-width: none;
   margin: 0 0 1rem;
   overflow: hidden;
   color: #4B5563;
-  font-size: 0.82rem;
-  line-height: 1.45;
+  font-size: 18px;
+  line-height: 1.6;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 4;
 }
@@ -738,16 +741,20 @@ p {
 }
 
 .opportunity-card-media {
-  position: relative;
+  position: absolute;
+  right: 20px;
+  top: 120px;
   display: grid;
   place-items: center;
-  min-width: 0;
+  width: 220px;
+  height: 220px;
+  border-radius: 50%;
 }
 
 .opportunity-card-media::before {
   content: "";
   position: absolute;
-  width: min(100%, 14rem);
+  width: 242px;
   aspect-ratio: 1;
   border: 0.55rem solid var(--primary);
   border-left-color: transparent;
@@ -758,8 +765,8 @@ p {
 .opportunity-image {
   position: relative;
   z-index: 1;
-  width: min(100%, 12.8rem);
-  aspect-ratio: 1;
+  width: 220px;
+  height: 220px;
   object-fit: cover;
   object-position: center;
   background: #eef2f7;
@@ -827,6 +834,7 @@ p {
 
 .listing-button {
   min-width: 0;
+  margin-top: 30px;
   padding: 0.62rem 1rem;
   border-radius: 999px;
   background: var(--primary);
@@ -850,6 +858,7 @@ p {
   align-items: center;
   gap: 0.65rem;
   min-height: 3.6rem;
+  margin: auto -28px -28px;
   padding: 0.75rem 1rem;
   border-top: 1px solid #E5E7EB;
   background: #ffffff;
@@ -998,13 +1007,29 @@ p {
   }
 
   .opportunity-card-body {
-    grid-template-columns: minmax(0, 1fr) minmax(120px, 42%);
-    padding: 0.75rem 1rem 1rem;
+    padding: 1.5rem 0 0;
+  }
+
+  .opportunity-card-media {
+    right: 12px;
+    top: 140px;
+    width: 190px;
+    height: 190px;
+  }
+
+  .opportunity-card-media::before {
+    width: 210px;
+  }
+
+  .opportunity-image {
+    width: 190px;
+    height: 190px;
   }
 
   .listing-actions {
     flex-direction: column;
     align-items: stretch;
+    margin: auto -28px -28px;
     padding: 1rem;
   }
 
@@ -1023,6 +1048,7 @@ p {
   }
 
   .poster-copy p {
+    width: 58%;
     font-size: 0.9rem;
   }
 
