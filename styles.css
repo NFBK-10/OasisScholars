@@ -209,8 +209,8 @@ p {
 
 .cards-grid {
   display: grid;
-  grid-template-columns: 1fr;
-  gap: 1.85rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.4rem;
 }
 
 .team-grid {
@@ -639,6 +639,241 @@ p {
   border-top: 1px solid #E5E7EB;
 }
 
+/* Poster-style opportunity card. Uploaded scholarship images fill the circular photo area. */
+.opportunity-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 430px;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 84% 13%, rgba(42, 93, 74, 0.14) 0 2px, transparent 2px 100%),
+    radial-gradient(circle at 88% 13%, rgba(42, 93, 74, 0.14) 0 2px, transparent 2px 100%),
+    #ffffff;
+  background-size: auto, 18px 18px, auto;
+  border: 1px solid #E4E7EA;
+  border-radius: 16px;
+  box-shadow: 0 20px 44px rgba(15, 23, 42, 0.1);
+}
+
+.poster-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-height: 2.5rem;
+  padding: 1rem 1rem 0;
+  color: var(--primary);
+  font-size: 0.58rem;
+  font-weight: 900;
+  line-height: 1.2;
+}
+
+.poster-brand-mark {
+  display: inline-grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 1.9rem;
+  height: 1.9rem;
+  border-radius: 50%;
+  background: var(--primary);
+  color: #ffffff;
+  font-size: 1rem;
+}
+
+.opportunity-card-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(130px, 45%);
+  gap: 0.75rem;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
+  padding: 0.4rem 1rem 0.75rem;
+}
+
+.poster-copy {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 0;
+}
+
+.poster-copy h2,
+.opportunity-card-body h2 {
+  margin: 0 0 0.65rem;
+  color: var(--primary);
+  font-size: clamp(1.45rem, 2.7vw, 2.35rem);
+  font-weight: 950;
+  line-height: 0.95;
+  text-transform: uppercase;
+  overflow-wrap: anywhere;
+}
+
+.poster-copy h2::after {
+  content: "";
+  display: block;
+  width: 2.2rem;
+  height: 2px;
+  margin-top: 0.85rem;
+  background: var(--primary);
+}
+
+.poster-copy p {
+  display: -webkit-box;
+  max-width: 15.5rem;
+  margin: 0 0 1rem;
+  overflow: hidden;
+  color: #4B5563;
+  font-size: 0.82rem;
+  line-height: 1.45;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 4;
+}
+
+.poster-rule {
+  display: block;
+  width: 2.2rem;
+  height: 2px;
+  margin-top: 1.35rem;
+  background: var(--primary);
+}
+
+.opportunity-card-media {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-width: 0;
+}
+
+.opportunity-card-media::before {
+  content: "";
+  position: absolute;
+  width: min(100%, 14rem);
+  aspect-ratio: 1;
+  border: 0.55rem solid var(--primary);
+  border-left-color: transparent;
+  border-radius: 50%;
+  transform: rotate(-18deg);
+}
+
+.opportunity-image {
+  position: relative;
+  z-index: 1;
+  width: min(100%, 12.8rem);
+  aspect-ratio: 1;
+  object-fit: cover;
+  object-position: center;
+  background: #eef2f7;
+  border-radius: 50%;
+  box-shadow: 0 14px 26px rgba(15, 23, 42, 0.15);
+}
+
+.opportunity-image-placeholder {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.4rem;
+  min-height: auto;
+  padding: 1.25rem;
+  color: #ffffff;
+  background: linear-gradient(135deg, #174236 0%, #2A5D4A 100%);
+}
+
+.opportunity-image-placeholder span,
+.opportunity-image-placeholder strong {
+  position: relative;
+  z-index: 1;
+}
+
+.opportunity-image-placeholder span {
+  font-size: 0.75rem;
+  opacity: 0.9;
+}
+
+.opportunity-image-placeholder strong {
+  max-width: 9rem;
+  font-size: 1rem;
+  line-height: 1.12;
+}
+
+.poster-apply-badge {
+  position: absolute;
+  z-index: 2;
+  right: 0.3rem;
+  bottom: -0.5rem;
+  display: grid;
+  place-items: center;
+  width: 4.5rem;
+  min-height: 4.5rem;
+  padding: 0.7rem;
+  background: var(--primary);
+  color: #ffffff;
+  border-radius: 45% 45% 50% 50%;
+  font-size: 0.72rem;
+  font-weight: 950;
+  line-height: 0.9;
+  text-align: center;
+  text-decoration: none;
+  box-shadow: 0 12px 22px rgba(30, 63, 50, 0.26);
+}
+
+.poster-apply-badge::before {
+  content: "";
+  width: 1.6rem;
+  height: 1rem;
+  margin-bottom: 0.25rem;
+  background: #ffffff;
+  clip-path: polygon(50% 0, 100% 38%, 50% 76%, 0 38%);
+}
+
+.listing-button {
+  min-width: 0;
+  padding: 0.62rem 1rem;
+  border-radius: 999px;
+  background: var(--primary);
+  color: #ffffff;
+  font-size: 0.75rem;
+  font-weight: 900;
+  letter-spacing: 0;
+}
+
+.listing-button:hover {
+  background: var(--primary-dark);
+}
+
+.listing-button span {
+  font-size: 1rem;
+}
+
+.listing-actions {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.65rem;
+  min-height: 3.6rem;
+  padding: 0.75rem 1rem;
+  border-top: 1px solid #E5E7EB;
+  background: #ffffff;
+}
+
+.share-actions {
+  justify-content: center;
+}
+
+.share-label {
+  color: #6B7280;
+  font-size: 0.65rem;
+  text-transform: uppercase;
+}
+
+.share-button {
+  min-height: 1.8rem;
+  padding: 0.3rem 0.52rem;
+  border-color: transparent;
+  background: #F8FAFC;
+  color: #374151;
+  font-size: 0.72rem;
+}
+
 .small-eyebrow {
   margin-bottom: 0.5rem;
   font-size: 0.78rem;
@@ -707,6 +942,12 @@ p {
   flex-wrap: wrap;
 }
 
+@media (max-width: 1080px) {
+  .cards-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
 @media (max-width: 860px) {
   .header-inner,
   .highlight-inner,
@@ -717,11 +958,6 @@ p {
 
   .owner-workspace {
     grid-template-columns: 1fr;
-  }
-
-  .opportunity-card-top {
-    grid-template-columns: 1fr;
-    gap: 1.25rem;
   }
 
   .listing-actions {
@@ -757,8 +993,13 @@ p {
     grid-template-columns: 1fr;
   }
 
-  .opportunity-card-top {
-    padding: 1rem;
+  .cards-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .opportunity-card-body {
+    grid-template-columns: minmax(0, 1fr) minmax(120px, 42%);
+    padding: 0.75rem 1rem 1rem;
   }
 
   .listing-actions {
@@ -774,6 +1015,15 @@ p {
 
   .share-actions {
     justify-content: flex-start;
+  }
+
+  .poster-copy h2,
+  .opportunity-card-body h2 {
+    font-size: clamp(1.55rem, 10vw, 2.5rem);
+  }
+
+  .poster-copy p {
+    font-size: 0.9rem;
   }
 
   .listing-description {

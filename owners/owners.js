@@ -79,10 +79,10 @@ function shareText(opportunity){
   return parts.filter(Boolean).join('\n\n');
 }
 
-async function copyShareText(opportunity, button){
+async function copyShareText(opportunity, button, forceCopy){
   const text = shareText(opportunity);
   try{
-    if(navigator.share){
+    if(navigator.share && !forceCopy){
       await navigator.share({
         title: opportunity.title,
         text: 'Posted by OASISSCHOLARS: ' + opportunity.title,
@@ -119,20 +119,15 @@ function buildShareActions(opportunity){
   whatsapp.textContent = 'WhatsApp';
   share.appendChild(whatsapp);
 
-  const x = document.createElement('a');
-  x.className = 'share-button';
-  x.href = 'https://twitter.com/intent/tweet?text=' + encodeURIComponent('Posted by OASISSCHOLARS: ' + opportunity.title) + '&url=' + encodedUrl;
-  x.target = '_blank';
-  x.rel = 'noopener noreferrer';
-  x.textContent = 'X';
-  share.appendChild(x);
-
-  const copy = document.createElement('button');
-  copy.className = 'share-button';
-  copy.type = 'button';
-  copy.textContent = 'Copy for Instagram';
-  copy.addEventListener('click', () => copyShareText(opportunity, copy));
-  share.appendChild(copy);
+  const instagram = document.createElement('button');
+  instagram.className = 'share-button';
+  instagram.type = 'button';
+  instagram.textContent = 'Instagram';
+  instagram.addEventListener('click', async () => {
+    await copyShareText(opportunity, instagram, true);
+    window.open('https://www.instagram.com/', '_blank', 'noopener,noreferrer');
+  });
+  share.appendChild(instagram);
 
   return share;
 }
@@ -417,8 +412,39 @@ function buildOpportunityCard(opportunity, ownerView, onRemoved){
   const card = document.createElement('article');
   card.className = 'opportunity-card';
 
-  const top = document.createElement('div');
-  top.className = 'opportunity-card-top';
+  const brand = document.createElement('div');
+  brand.className = 'poster-brand';
+  const mark = document.createElement('span');
+  mark.className = 'poster-brand-mark';
+  mark.textContent = 'O';
+  brand.appendChild(mark);
+  const brandText = document.createElement('span');
+  brandText.textContent = 'INVEST IN KNOWLEDGE, INVEST IN TOMORROW.';
+  brand.appendChild(brandText);
+  card.appendChild(brand);
+
+  const body = document.createElement('div');
+  body.className = 'opportunity-card-body';
+
+  const copy = document.createElement('div');
+  copy.className = 'poster-copy';
+  addText(copy, 'h2', opportunity.title);
+  addText(copy, 'p', opportunity.summary);
+
+  const link = document.createElement('a');
+  link.className = 'button listing-button';
+  link.href = (ownerView ? '../' : '') + 'opportunity.html?id=' + encodeURIComponent(opportunity.id);
+  link.textContent = 'LEARN MORE';
+  const arrow = document.createElement('span');
+  arrow.setAttribute('aria-hidden', 'true');
+  arrow.textContent = '\u2192';
+  link.appendChild(arrow);
+  copy.appendChild(link);
+
+  const rule = document.createElement('span');
+  rule.className = 'poster-rule';
+  copy.appendChild(rule);
+  body.appendChild(copy);
 
   const media = document.createElement('div');
   media.className = 'opportunity-card-media';
@@ -435,35 +461,17 @@ function buildOpportunityCard(opportunity, ownerView, onRemoved){
     addText(placeholder, 'strong', opportunity.title);
     media.appendChild(placeholder);
   }
-  top.appendChild(media);
 
-  const body = document.createElement('div');
-  body.className = 'opportunity-card-body';
-  addText(body, 'h2', opportunity.title);
-
-  const meta = document.createElement('ul');
-  meta.className = 'listing-meta-list';
-  addListingMeta(meta, 'M12 1.75a10.25 10.25 0 1 0 0 20.5 10.25 10.25 0 0 0 0-20.5Zm.75 16.5h-1.5v-1.7a4.25 4.25 0 0 1-2.65-1.05l.95-1.25c.82.65 1.6.95 2.45.95.9 0 1.45-.4 1.45-1.05 0-.68-.5-.98-1.8-1.38-1.83-.55-2.75-1.25-2.75-2.8 0-1.38.92-2.38 2.35-2.68V5.75h1.5v1.5c.98.13 1.8.48 2.5 1.05l-.88 1.3c-.7-.48-1.35-.72-2.1-.72-.82 0-1.27.38-1.27.95 0 .62.42.9 1.92 1.35 1.72.52 2.62 1.3 2.62 2.85 0 1.45-.98 2.52-2.8 2.78v1.45Z', opportunity.amount || 'Fully Funded');
-  addListingMeta(meta, 'M3 9.5 12 5l9 4.5-9 4.5-9-4.5Zm3 3.2 6 3 6-3V17c0 .35-.22.68-.6.9L12 21l-5.4-3.1A1.05 1.05 0 0 1 6 17v-4.3Z', opportunity.provider);
-  addListingMeta(meta, 'M12 3 2 8l10 5 10-5-10-5Zm-7 8.2V18h2v-5.8l-2-1Zm4 2V18h2v-4h-2Zm4 0V18h2v-4h-2Zm4-1V18h2v-6.8l-2 1Z', 'Scholarship');
-  addListingMeta(meta, 'M4 5.5A2.5 2.5 0 0 1 6.5 3H20v16H7a3 3 0 0 0-3 3V5.5Zm3 .5v10.5h11V5H7Zm-1 13h12v1.5H6.5A1.5 1.5 0 0 1 5 19c0-.55.45-1 1-1Z', 'All Subjects');
-  addListingMeta(meta, 'M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm6.9 9h-3.15a15.8 15.8 0 0 0-1.1-5 8.05 8.05 0 0 1 4.25 5ZM12 4.05c.72 1.03 1.35 2.75 1.62 4.95h-3.24c.27-2.2.9-3.92 1.62-4.95ZM4.25 13h3.15c.12 1.82.5 3.55 1.1 5a8.05 8.05 0 0 1-4.25-5Zm3.15-2H4.25A8.05 8.05 0 0 1 8.5 6a15.8 15.8 0 0 0-1.1 5ZM12 19.95c-.72-1.03-1.35-2.75-1.62-4.95h3.24c-.27 2.2-.9 3.92-1.62 4.95ZM14 13h-4c-.05-.65-.08-1.32-.08-2s.03-1.35.08-2h4c.05.65.08 1.32.08 2s-.03 1.35-.08 2Zm1.5 5c.6-1.45.98-3.18 1.1-5h3.15a8.05 8.05 0 0 1-4.25 5Z', 'International Students');
-  addListingMeta(meta, 'M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7Zm0 9.5A2.5 2.5 0 1 1 12 6a2.5 2.5 0 0 1 0 5.5Z', formatDate(opportunity.deadline));
-  body.appendChild(meta);
-  top.appendChild(body);
-  card.appendChild(top);
+  const apply = document.createElement('a');
+  apply.className = 'poster-apply-badge';
+  apply.href = (ownerView ? '../' : '') + 'contact.html';
+  apply.textContent = 'APPLY TODAY';
+  media.appendChild(apply);
+  body.appendChild(media);
+  card.appendChild(body);
 
   const actions = document.createElement('div');
   actions.className = 'listing-actions';
-  const link = document.createElement('a');
-  link.className = 'button listing-button';
-  link.href = (ownerView ? '../' : '') + 'opportunity.html?id=' + encodeURIComponent(opportunity.id);
-  link.textContent = 'LEARN MORE';
-  const arrow = document.createElement('span');
-  arrow.setAttribute('aria-hidden', 'true');
-  arrow.textContent = '\u2192';
-  link.appendChild(arrow);
-  actions.appendChild(link);
   actions.appendChild(buildShareActions(opportunity));
 
   if(ownerView){
@@ -493,11 +501,6 @@ function buildOpportunityCard(opportunity, ownerView, onRemoved){
   }
 
   card.appendChild(actions);
-
-  const description = document.createElement('p');
-  description.className = 'listing-description';
-  description.textContent = opportunity.summary || '';
-  card.appendChild(description);
   return card;
 }
 
